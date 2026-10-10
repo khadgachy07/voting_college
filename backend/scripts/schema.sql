@@ -25,6 +25,7 @@ CREATE TABLE IF NOT EXISTS students (
   id              INT AUTO_INCREMENT PRIMARY KEY,
   user_id         INT NOT NULL UNIQUE,
   student_id      VARCHAR(50) UNIQUE,
+  name            VARCHAR(255),
   faculty         VARCHAR(100),
   department      VARCHAR(100),
   semester        VARCHAR(50),

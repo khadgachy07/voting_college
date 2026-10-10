@@ -22,7 +22,7 @@ export async function listStudents(req, res) {
     params.push(semester);
   }
   if (search) {
-    sql += ' AND (s.student_id LIKE ? OR s.name_placeholder LIKE ?)';
+    sql += ' AND (s.student_id LIKE ? OR s.name LIKE ?)';
     params.push(`%${search}%`, `%${search}%`);
   }
 
@@ -45,8 +45,8 @@ export async function createStudent(req, res) {
 
   const hash = await bcryptHash(password);
   const result = await query(
-    'INSERT INTO students (user_id, student_id, faculty, department, semester, batch, eligibility_status) VALUES (?, ?, ?, ?, ?, ?, ?)',
-    [hash, student_id, faculty, department, semester, batch, eligibility_status || 'eligible']
+    'INSERT INTO students (user_id, student_id, name, faculty, department, semester, batch, eligibility_status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+    [hash, student_id, name, faculty, department, semester, batch, eligibility_status || 'eligible']
   );
 
   const token = signToken({ id: result.insertId, role: 'student' });
@@ -172,8 +172,8 @@ export async function importStudents(req, res) {
     const hash = await bcryptHash(row.password || 'Password123!');
     try {
       await query(
-        'INSERT INTO students (user_id, student_id, faculty, department, semester, batch, eligibility_status) VALUES (?, ?, ?, ?, ?, ?, ?)',
-        [hash, row.student_id, row.faculty, row.department, row.semester, row.batch, row.eligibility_status || 'eligible']
+        'INSERT INTO students (user_id, student_id, name, faculty, department, semester, batch, eligibility_status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+        [hash, row.student_id, row.name, row.faculty, row.department, row.semester, row.batch, row.eligibility_status || 'eligible']
       );
       created.push(row.student_id);
     } catch {
