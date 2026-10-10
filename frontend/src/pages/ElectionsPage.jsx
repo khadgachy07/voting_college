@@ -72,6 +72,8 @@ export default function ElectionsPage() {
 
       {error && <div className="bg-red-50 text-red-600 text-sm p-3 rounded-lg mb-4">{error}</div>}
 
+      <Button variant="primary" className="mb-4" onClick={() => setCreateModalOpen(true)}>+ Create Election</Button>
+
       <Card>
         {loading ? (
           <div className="py-8 text-center text-slate-400">Loading…</div>
@@ -91,7 +93,6 @@ export default function ElectionsPage() {
                     </div>
                   </div>
                   <div className="flex gap-2">
-                    <Button variant="primary" onClick={() => setCreateModalOpen(true)}>+ Create Election</Button>
                     {e.status === 'upcoming' && (
                       <Button variant="success" onClick={() => changeStatus(e.id, 'active')}>Start</Button>
                     )}

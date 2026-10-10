@@ -100,13 +100,27 @@ export default function CandidatesPage() {
           </div>
         )}
 
-      {pendingCandidates.length > 0 && (
-        <Button variant="primary" className="mt-6" onClick={() => setCreateModalOpen(true)}>+ Add Candidate</Button>
-      )}
+        {pendingCandidates.length > 0 && (
+          <Button variant="primary" className="mt-6" onClick={() => setCreateModalOpen(true)}>+ Add Candidate</Button>
+        )}
 
-      {createModalOpen && (
-        <CandidateForm isOpen={createModalOpen} onClose={() => setCreateModalOpen(false)} onSubmit={(data) => candidateApi.create(data).then(load).catch(e => { setError(e.message); }).finally(() => setCreateModalOpen(false)) }} />
-      )}
+        {createModalOpen && (
+          <CandidateForm
+            isOpen={createModalOpen}
+            onClose={() => setCreateModalOpen(false)}
+            onSubmit={async (data) => {
+              try {
+                await candidateApi.create(data);
+                load();
+              } catch (e) {
+                setError(e.message);
+              } finally {
+                setCreateModalOpen(false);
+              }
+            }}
+          />
+        )}
+      </Card>
     </div>
   );
 }
