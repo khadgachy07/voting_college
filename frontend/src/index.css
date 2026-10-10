@@ -1,0 +1,42 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  @apply bg-slate-50 text-slate-800 antialiased;
+  font-family: 'Inter', system-ui, sans-serif;
+}
+
+/* ------------------------------------------------------------------ */
+/* Base component classes used across the app                         */
+/* ------------------------------------------------------------------ */
+
+.card {
+  @apply bg-white rounded-xl border border-slate-200 shadow-sm;
+}
+
+.input {
+  @apply bg-white placeholder:text-slate-400 outline-none;
+}
+
+.btn {
+  @apply inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-primary disabled:opacity-60 disabled:cursor-not-allowed;
+}
+
+.btn-primary {
+  @apply bg-primary text-white shadow-sm hover:brightness-110 active:bg-primary/90;
+}
+
+.btn-secondary {
+  @apply bg-slate-100 text-slate-700 border border-slate-200 hover:bg-slate-200;
+}
+
+.btn-danger {
+  @apply bg-red-50 text-red-600 border border-red-100 hover:bg-red-100;
+}
+
+.btn-success {
+  @apply bg-emerald-50 text-emerald-700 border border-emerald-100 hover:bg-emerald-100;
+}
