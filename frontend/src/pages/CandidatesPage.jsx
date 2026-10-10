@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Card, Badge, Button, Select } from '../components/ui/index.js';
 import { candidateApi, electionApi, positionApi } from '../utils/api.js';
+import CandidateForm from '../components/ui/CandidateForm.jsx';
 
 export default function CandidatesPage() {
   const [candidates, setCandidates] = useState([]);
@@ -9,6 +10,7 @@ export default function CandidatesPage() {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('');
   const [error, setError] = useState('');
+  const [createModalOpen, setCreateModalOpen] = useState(false);
 
   useEffect(() => {
     load();
@@ -43,6 +45,8 @@ export default function CandidatesPage() {
     try { await candidateApi.delete(id); load(); } catch (e) { setError(e.message); }
   }
 
+  const pendingCandidates = candidates.filter(c => c.approval_status === 'pending');
+
   return (
     <div className="p-6 max-w-6xl mx-auto">
       <h1 className="text-2xl font-bold text-slate-800 mb-1">Candidates</h1>
@@ -67,7 +71,7 @@ export default function CandidatesPage() {
         ) : (
           <div className="space-y-3">
             {candidates.map((c) => (
-              <Card key={c.id} className="!p-4 flex items-center justify-between gap-4">
+              <Card key={c.id} className={`!p-4 flex items-center justify-between gap-4 ${pendingCandidates.indexOf(c) >= 0 ? '' : 'opacity-50'}`}>
                 <div className="flex items-center gap-3">
                   <div className="w-11 h-11 rounded-full bg-primary/10 text-primary flex items-center justify-center font-semibold">{(c.student_id || '?').slice(0, 2).toUpperCase()}</div>
                   <div>
@@ -77,21 +81,32 @@ export default function CandidatesPage() {
                     </p>
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 shrink-0">
                   <Badge tone={c.approval_status}>{c.approval_status}</Badge>
                   {c.approval_status === 'pending' && (
                     <>
                       <Button variant="success" onClick={() => approve(c.id)}>Approve</Button>
                       <Button variant="danger" onClick={() => reject(c.id)}>Reject</Button>
+                      <Button variant="secondary" onClick={() => remove(c.id)}>Remove</Button>
                     </>
-                  )}
-                  <Button variant="secondary" onClick={() => remove(c.id)}>Remove</Button>
+                  )} else if (c.approval_status === 'rejected') {
+                    <Button variant="danger" onClick={() => remove(c.id)}>Delete</Button>
+                  } else {
+                    <span className="text-xs text-slate-400">—</span>
+                  }
                 </div>
               </Card>
             ))}
           </div>
         )}
-      </Card>
+
+      {pendingCandidates.length > 0 && (
+        <Button variant="primary" className="mt-6" onClick={() => setCreateModalOpen(true)}>+ Add Candidate</Button>
+      )}
+
+      {createModalOpen && (
+        <CandidateForm isOpen={createModalOpen} onClose={() => setCreateModalOpen(false)} onSubmit={(data) => candidateApi.create(data).then(load).catch(e => { setError(e.message); }).finally(() => setCreateModalOpen(false)) }} />
+      )}
     </div>
   );
 }

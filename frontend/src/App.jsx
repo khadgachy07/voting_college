@@ -14,6 +14,8 @@ import VotePage from './pages/VotePage.jsx';
 import CandidateDashboard from './pages/CandidateDashboard.jsx';
 import CandidateProfile from './pages/CandidateProfile.jsx';
 import SignUp from './pages/SignUp.jsx';
+import MyVotesPage from './pages/MyVotesPage.jsx';
+import PositionsPage from './pages/PositionsPage.jsx';
 
 function Protected({ children }) {
   const { user, loading } = useAuth();
@@ -36,12 +38,14 @@ export default function App() {
         <Route path="/admin/students" element={<StudentsPage />} />
         <Route path="/admin/elections" element={<ElectionsPage />} />
         <Route path="/admin/candidates" element={<CandidatesPage />} />
+        <Route path="/admin/positions" element={<PositionsPage />} />
         <Route path="/admin/results" element={<ResultsPage />} />
         <Route path="/admin/audit" element={<AuditPage />} />
 
         {/* Student */}
         <Route path="/student/dashboard" element={<StudentDashboard />} />
         <Route path="/student/vote" element={<VotePage />} />
+        <Route path="/student/my-votes" element={<MyVotesPage />} />
 
         {/* Candidate */}
         <Route path="/candidate/dashboard" element={<CandidateDashboard />} />

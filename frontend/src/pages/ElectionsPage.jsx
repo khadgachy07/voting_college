@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Card, Badge, Button } from '../components/ui/index.js';
 import { electionApi, positionApi, candidateApi } from '../utils/api.js';
+import CreateElection from '../components/ui/CreateElection.jsx';
 
 const STATUS_LABEL = {
   draft: 'Draft',
@@ -14,6 +15,7 @@ export default function ElectionsPage() {
   const [elections, setElections] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [createModalOpen, setCreateModalOpen] = useState(false);
 
   useEffect(() => {
     load();
@@ -39,6 +41,16 @@ export default function ElectionsPage() {
     try {
       await electionApi.changeStatus(id, status);
       load();
+    } catch (err) {
+      setError(err.message);
+    }
+  }
+
+  async function createElection(data) {
+    try {
+      await electionApi.create(data);
+      load();
+      setCreateModalOpen(false);
     } catch (err) {
       setError(err.message);
     }
@@ -79,6 +91,7 @@ export default function ElectionsPage() {
                     </div>
                   </div>
                   <div className="flex gap-2">
+                    <Button variant="primary" onClick={() => setCreateModalOpen(true)}>+ Create Election</Button>
                     {e.status === 'upcoming' && (
                       <Button variant="success" onClick={() => changeStatus(e.id, 'active')}>Start</Button>
                     )}
@@ -101,6 +114,10 @@ export default function ElectionsPage() {
           </div>
         )}
       </Card>
+
+      {createModalOpen && (
+        <CreateElection isOpen={createModalOpen} onClose={() => setCreateModalOpen(false)} onSubmit={createElection} />
+      )}
     </div>
   );
 }

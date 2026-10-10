@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { Card, Badge, Button, Input, Select } from '../components/ui/index.js';
 import { studentApi } from '../utils/api.js';
+import EditStudentModal from '../components/ui/EditStudentModal.jsx';
+import CSVImport from '../components/ui/CSVImport.jsx';
 
 export default function StudentsPage() {
   const [students, setStudents] = useState([]);
@@ -9,6 +11,9 @@ export default function StudentsPage() {
   const [department, setDepartment] = useState('');
   const [semester, setSemester] = useState('');
   const [error, setError] = useState('');
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [studentToEdit, setStudentToEdit] = useState(null);
+  const [importModalOpen, setImportModalOpen] = useState(false);
 
   useEffect(() => {
     load();
@@ -58,6 +63,32 @@ export default function StudentsPage() {
     if (!confirm('Delete this student?')) return;
     try {
       await studentApi.delete(id);
+      load();
+    } catch (err) {
+      setError(err.message);
+    }
+  }
+
+  async function editStudent(student) {
+    setStudentToEdit(student);
+    setEditModalOpen(true);
+  }
+
+  async function updateStudent(data) {
+    try {
+      await studentApi.update(studentToEdit.id, data);
+      load();
+      setEditModalOpen(false);
+      setStudentToEdit(null);
+    } catch (err) {
+      setError(err.message);
+    }
+  }
+
+  async function handleImport(file) {
+    try {
+      const csvText = await file.text();
+      await studentApi.import(csvText);
       load();
     } catch (err) {
       setError(err.message);
@@ -117,6 +148,7 @@ export default function StudentsPage() {
                           {s.eligibility_status === 'eligible' ? 'Disable' : 'Enable'}
                         </Button>
                         <Button variant="secondary" onClick={() => resetPassword(s.id)}>Reset PW</Button>
+                        <Button variant="primary" onClick={() => editStudent(s)}>Edit</Button>
                         <Button variant="danger" onClick={() => remove(s.id)}>Delete</Button>
                       </div>
                     </td>
