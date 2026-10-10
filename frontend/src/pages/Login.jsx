@@ -1,4 +1,4 @@
-import { useState, useSearchParams } from 'react';
+import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
 import { authApi } from '../utils/api.js';
@@ -12,7 +12,7 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
-  const searchParams = useSearchParams();
+  const searchParams = new URLSearchParams(window.location.search);
   const returnTo = searchParams.get('returnTo') || '/student/dashboard';
 
   async function handleSubmit(e) {
