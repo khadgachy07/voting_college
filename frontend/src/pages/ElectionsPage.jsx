@@ -15,16 +15,24 @@ export default function ElectionsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
+  useEffect(() => {
+    load();
+  }, []);
+
   async function load() {
     setLoading(true);
-    try {
-      const { data } = await electionApi.list();
-      setElections(data.elections);
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
+    const timeoutId = setTimeout(async () => {
+      try {
+        const { data } = await electionApi.list();
+        setElections(data.elections);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    }, 3000); // 3 second timeout
+
+    return () => clearTimeout(timeoutId);
   }
 
   async function changeStatus(id, status) {

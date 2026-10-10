@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Card } from '../components/ui/index.js';
+import { Card, Badge } from '../components/ui/index.js';
 import { candidateApi, positionApi, electionApi } from '../utils/api.js';
 
 export default function CandidateProfile() {
@@ -11,7 +11,7 @@ export default function CandidateProfile() {
 
   useEffect(() => {
     let active = true;
-    (async () => {
+    const timeoutId = setTimeout(async () => {
       try {
         const [cand, pos, el] = await Promise.all([candidateApi.list(), positionApi.list(), electionApi.list()]);
         if (!active) return;
@@ -27,8 +27,12 @@ export default function CandidateProfile() {
       } finally {
         if (active) setLoading(false);
       }
-    })();
-    return () => { active = false; };
+    }, 3000); // 3 second timeout
+
+    return () => {
+      active = false;
+      clearTimeout(timeoutId);
+    };
   }, []);
 
   return (

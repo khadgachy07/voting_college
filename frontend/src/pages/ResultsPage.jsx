@@ -16,7 +16,7 @@ export default function ResultsPage() {
 
   useEffect(() => {
     let active = true;
-    (async () => {
+    const timeoutId = setTimeout(async () => {
       try {
         const { data } = await electionApi.list();
         if (active) setElectionId(data.elections[0]?.id || null);
@@ -25,23 +25,32 @@ export default function ResultsPage() {
       } finally {
         if (active) setLoading(false);
       }
-    })();
-    return () => { active = false; };
+    }, 3000); // 3 second timeout
+
+    return () => {
+      active = false;
+      clearTimeout(timeoutId);
+    };
   }, []);
 
   useEffect(() => {
     let active = true;
-    async function load() {
+    const timeoutId = setTimeout(async () => {
       if (!electionId) return;
       try {
         const { data } = await voteApi.stats(electionId);
         if (active) setResults(data);
       } catch (e) {
         if (active) setError(e.message);
+      } finally {
+        // No setLoading here since it's already handled by the first effect
       }
-    }
-    load();
-    return () => { active = false; };
+    }, 10000); // 10 second timeout
+
+    return () => {
+      active = false;
+      clearTimeout(timeoutId);
+    };
   }, [electionId]);
 
   const hasPositions = results?.positions && results.positions.length > 0;
@@ -49,6 +58,15 @@ export default function ResultsPage() {
     ? {
         labels: results.positions[0].candidates.map((c) => c.symbol || `C${c.id}`),
         datasets: [{ data: results.positions[0].candidates.map((c) => c.votes), backgroundColor: COLORS }],
+      }
+    : null;
+
+  const barData = hasPositions
+    ? {
+        labels: results.positions.map((p) => p.name),
+        datasets: [
+          { label: 'Votes', data: results.positions.map((p) => p.totalVotes), backgroundColor: '#2563eb' },
+        ],
       }
     : null;
 

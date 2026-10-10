@@ -11,7 +11,7 @@ export default function CandidateDashboard() {
 
   useEffect(() => {
     let active = true;
-    (async () => {
+    const timeoutId = setTimeout(async () => {
       try {
         const [cand, el, pos] = await Promise.all([candidateApi.list(), electionApi.list(), positionApi.list()]);
         if (!active) return;
@@ -25,8 +25,12 @@ export default function CandidateDashboard() {
       } finally {
         if (active) setLoading(false);
       }
-    })();
-    return () => { active = false; };
+    }, 3000); // 3 second timeout
+
+    return () => {
+      active = false;
+      clearTimeout(timeoutId);
+    };
   }, []);
 
   return (

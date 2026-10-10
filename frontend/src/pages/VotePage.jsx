@@ -12,10 +12,11 @@ export default function VotePage() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     let active = true;
-    (async () => {
+    const timeoutId = setTimeout(async () => {
       try {
         const [el, pos, cand] = await Promise.all([electionApi.list(), positionApi.list(), candidateApi.list()]);
         if (!active) return;
@@ -33,10 +34,14 @@ export default function VotePage() {
       } catch (e) {
         if (active) setError(e.message);
       } finally {
-        if (active) setError('');
+        if (active) setLoading(false);
       }
-    })();
-    return () => { active = false; };
+    }, 3000); // 3 second timeout
+
+    return () => {
+      active = false;
+      clearTimeout(timeoutId);
+    };
   }, []);
 
   async function submit(positionId, candidateId) {
@@ -59,10 +64,19 @@ export default function VotePage() {
       <h1 className="text-2xl font-bold text-slate-800 mb-1">Cast Your Vote</h1>
       <p className="text-sm text-slate-500 mb-6">One vote per position. Choose one candidate for each.</p>
 
-      {error && <div className="bg-red-50 text-red-600 text-sm p-3 rounded-lg mb-4">{error}</div>}
+      {error && (
+        <div className="bg-red-50 text-red-600 text-sm p-3 rounded-lg mb-4">
+          <p>{error}</p>
+          <p className="mt-1 text-xs opacity-80">Make sure the backend server is running on port 5000</p>
+        </div>
+      )}
       {success && <div className="bg-emerald-50 text-emerald-700 text-sm p-3 rounded-lg mb-4">{success}</div>}
 
-      {!election ? (
+      {loading ? (
+        <Card>
+          <div className="py-8 text-center text-slate-400">Loading elections…</div>
+        </Card>
+      ) : !election ? (
         <Card>
           <div className="py-8 text-center text-slate-400">
             {error || 'No active election is available to vote in right now.'}

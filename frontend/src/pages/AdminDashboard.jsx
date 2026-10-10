@@ -8,7 +8,7 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     let active = true;
-    (async () => {
+    const timeoutId = setTimeout(async () => {
       try {
         const [students, elections, candidates] = await Promise.all([
           studentApi.list(),
@@ -33,8 +33,12 @@ export default function AdminDashboard() {
       } finally {
         if (active) setLoading(false);
       }
-    })();
-    return () => { active = false; };
+    }, 3000); // 3 second timeout
+
+    return () => {
+      active = false;
+      clearTimeout(timeoutId);
+    };
   }, []);
 
   return (

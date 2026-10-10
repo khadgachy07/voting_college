@@ -10,10 +10,24 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (token) {
-      authApi.me()
-        .then((data) => setUser(data.user))
-        .catch(() => clearAuth())
-        .finally(() => setLoading(false));
+      const timeoutId = setTimeout(async () => {
+        try {
+          const data = await authApi.me();
+          setUser(data.user);
+        } catch (err) {
+          // Only clear auth on 401 (unauthorized), not on other errors
+          if (err.response?.status === 401) {
+            clearAuth();
+          } else {
+            // Keep the user logged in - token is valid, just a transient error
+            console.warn('Failed to fetch user profile:', err.message);
+          }
+        } finally {
+          setLoading(false);
+        }
+      }, 3000); // 3 second timeout
+
+      return () => clearTimeout(timeoutId);
     } else {
       setLoading(false);
     }

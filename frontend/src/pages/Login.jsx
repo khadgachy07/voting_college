@@ -10,6 +10,7 @@ export default function Login() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [redirecting, setRedirecting] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
   const searchParams = new URLSearchParams(window.location.search);
@@ -25,9 +26,11 @@ export default function Login() {
       const role = data.user?.role;
       // Use returnTo if available, otherwise use role-based default
       const path = returnTo || (role === 'admin' ? '/admin/dashboard' : role === 'candidate' ? '/candidate/dashboard' : '/student/dashboard');
+      setRedirecting(true);
       navigate(path);
     } catch (err) {
       setError(err.message || 'Login failed');
+      setRedirecting(false);
     } finally {
       setLoading(false);
     }
@@ -49,8 +52,8 @@ export default function Login() {
             <Input label="Email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@college.edu" required autoFocus />
             <Input label="Password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" required />
 
-            <Button variant="primary" className="w-full" disabled={loading}>
-              {loading ? 'Signing in…' : 'Sign In'}
+            <Button variant="primary" className="w-full" disabled={loading || redirecting}>
+              {loading ? 'Signing in…' : redirecting ? 'Redirecting…' : 'Sign In'}
             </Button>
           </form>
         </Card>

@@ -10,20 +10,28 @@ export default function StudentsPage() {
   const [semester, setSemester] = useState('');
   const [error, setError] = useState('');
 
+  useEffect(() => {
+    load();
+  }, []);
+
   async function load() {
     setLoading(true);
-    try {
-      const params = {};
-      if (search) params.search = search;
-      if (department) params.department = department;
-      if (semester) params.semester = semester;
-      const { data } = await studentApi.list(params);
-      setStudents(data.students);
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
+    const timeoutId = setTimeout(async () => {
+      try {
+        const params = {};
+        if (search) params.search = search;
+        if (department) params.department = department;
+        if (semester) params.semester = semester;
+        const { data } = await studentApi.list(params);
+        setStudents(data.students);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    }, 3000); // 3 second timeout
+
+    return () => clearTimeout(timeoutId);
   }
 
   async function toggle(id) {

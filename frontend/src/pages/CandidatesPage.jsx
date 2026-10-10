@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Card, Badge, Button } from '../components/ui/index.js';
+import { Card, Badge, Button, Select } from '../components/ui/index.js';
 import { candidateApi, electionApi, positionApi } from '../utils/api.js';
 
 export default function CandidatesPage() {
@@ -10,18 +10,26 @@ export default function CandidatesPage() {
   const [filter, setFilter] = useState('');
   const [error, setError] = useState('');
 
+  useEffect(() => {
+    load();
+  }, []);
+
   async function load() {
     setLoading(true);
-    try {
-      const [cand, el, pos] = await Promise.all([candidateApi.list(), electionApi.list(), positionApi.list()]);
-      setCandidates(cand.data.candidates);
-      setElections(el.data.elections);
-      setPositions(pos.data.positions);
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
+    const timeoutId = setTimeout(async () => {
+      try {
+        const [cand, el, pos] = await Promise.all([candidateApi.list(), electionApi.list(), positionApi.list()]);
+        setCandidates(cand.data.candidates);
+        setElections(el.data.elections);
+        setPositions(pos.data.positions);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    }, 3000); // 3 second timeout
+
+    return () => clearTimeout(timeoutId);
   }
 
   async function approve(id) {

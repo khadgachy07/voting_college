@@ -39,6 +39,7 @@ router.post('/elections/:id/pause', authenticate, authorize('admin'), electionCt
 router.post('/elections/:id/close', authenticate, authorize('admin'), electionCtrl.closeElection);
 router.post('/elections/:id/publish-results', authenticate, authorize('admin'), electionCtrl.publishResults);
 router.get('/elections/:id', authenticate, authorize('admin'), electionCtrl.getElection);
+router.post('/elections/:id/assign-voters', authenticate, authorize('admin'), electionCtrl.assignVotersToElection);
 
 // ---------------------------------------------------------------------------
 // Positions — read (any authenticated user); write — admin only

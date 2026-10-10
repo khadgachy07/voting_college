@@ -29,15 +29,19 @@ export default function SignUp() {
     }
 
     setLoading(true);
-    try {
-      const { data } = await authApi.register(name, email, password);
-      login(data.token, { id: null, name, role: 'student' });
-      navigate('/student/dashboard');
-    } catch (err) {
-      setError(err.message || 'Sign up failed');
-    } finally {
-      setLoading(false);
-    }
+    const timeoutId = setTimeout(async () => {
+      try {
+        const { data } = await authApi.register(name, email, password);
+        login(data.token, { id: null, name, role: 'student' });
+        navigate('/student/dashboard');
+      } catch (err) {
+        setError(err.message || 'Sign up failed');
+      } finally {
+        setLoading(false);
+      }
+    }, 3000); // 3 second timeout
+
+    return () => clearTimeout(timeoutId);
   }
 
   return (

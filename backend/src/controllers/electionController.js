@@ -92,6 +92,30 @@ export async function publishResults(req, res) {
   res.json({ message: 'Results published', election: { ...election, status: 'results_published' } });
 }
 
+export async function assignVotersToElection(req, res) {
+  const { id } = req.params;
+  const { student_ids } = req.body;
+
+  const [election] = await query('SELECT * FROM elections WHERE id = ?', [id]);
+  if (!election) return res.status(404).json({ message: 'Election not found' });
+
+  if (!student_ids || !Array.isArray(student_ids)) {
+    return res.status(400).json({ message: 'student_ids must be an array of student IDs' });
+  }
+
+  // Assign voters to this election by adding a flag in students table
+  const placeholders = student_ids.map(() => '?').join(', ');
+  await query(
+    `UPDATE students
+     SET election_id = ?
+     WHERE id IN (${placeholders})`,
+    [...student_ids, id]
+  );
+
+  await logAction(req.user.id, 'voters_assigned_to_election', { election_id: id, voter_count: student_ids.length });
+  res.json({ message: `Assigned ${student_ids.length} voters to election`, election_id: id });
+}
+
 export async function changeStatus(req, res) {
   const { id } = req.params;
   const { status } = req.body;

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Card, StatCard } from '../components/ui/index.js';
+import { Card, StatCard, Badge } from '../components/ui/index.js';
 import { electionApi, voteApi } from '../utils/api.js';
 
 export default function StudentDashboard() {
@@ -11,12 +11,13 @@ export default function StudentDashboard() {
 
   useEffect(() => {
     let active = true;
-    (async () => {
+    const timeoutId = setTimeout(async () => {
       try {
         const elRes = await electionApi.list();
         if (!active) return;
+        setElections(elRes.data.elections || []);
+        // Only fetch stats if there's an active election
         const activeElection = elRes.data.elections.find((e) => e.status === 'active');
-        setElections(elRes.data.elections.filter((e) => e.status === 'active'));
         if (activeElection) {
           const statsRes = await voteApi.stats(activeElection.id);
           if (active) {
@@ -28,12 +29,16 @@ export default function StudentDashboard() {
           }
         }
       } catch (e) {
-        if (active) setError(e.message);
+        if (active) setError(e.message || 'Failed to load dashboard data');
       } finally {
         if (active) setLoading(false);
       }
-    })();
-    return () => { active = false; };
+    }, 3000); // 3 second timeout
+
+    return () => {
+      active = false;
+      clearTimeout(timeoutId);
+    };
   }, []);
 
   return (
@@ -41,7 +46,12 @@ export default function StudentDashboard() {
       <h1 className="text-2xl font-bold text-slate-800 mb-1">Welcome back</h1>
       <p className="text-sm text-slate-500 mb-6">Your voting dashboard.</p>
 
-      {error && <div className="bg-red-50 text-red-600 text-sm p-3 rounded-lg mb-4">{error}</div>}
+      {error && (
+        <div className="bg-red-50 text-red-600 text-sm p-3 rounded-lg mb-4">
+          <p>{error}</p>
+          <p className="mt-1 text-xs opacity-80">Make sure the backend server is running on port 5000</p>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <StatCard label="Active Elections" value={stats?.activeElections} icon="🗳️" />

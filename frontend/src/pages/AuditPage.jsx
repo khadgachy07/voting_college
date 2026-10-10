@@ -9,7 +9,7 @@ export default function AuditPage() {
 
   useEffect(() => {
     let active = true;
-    (async () => {
+    const timeoutId = setTimeout(async () => {
       try {
         const { data } = await auditApi.list();
         if (active) setLogs(data.logs);
@@ -18,8 +18,12 @@ export default function AuditPage() {
       } finally {
         if (active) setLoading(false);
       }
-    })();
-    return () => { active = false; };
+    }, 3000); // 3 second timeout
+
+    return () => {
+      active = false;
+      clearTimeout(timeoutId);
+    };
   }, []);
 
   return (
